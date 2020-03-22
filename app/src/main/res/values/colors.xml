@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryDark">#000000</color>
+    <color name="colorAccent">#ffffff</color>
+
+    <color name="white">#ffffff</color>
+    <color name="settingBackground1">#163C5F</color>
+    <color name="settingBackground2">#1A5E8D</color>
+    
+    <color name="MethodOfExecution1">#2675A0</color>
+    <color name="MethodOfExecution2">#4EC0DD</color>
+
+    <color name="black">#000000</color>
+    <color name="trance">#00000000</color>
+
+    <color name="MethodOfExecutionPoint">#FF4800</color>
+
+
+</resources>

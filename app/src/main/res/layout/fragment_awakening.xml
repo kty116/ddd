@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:paddingRight="30dp"
+        android:paddingLeft="30dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:orientation="vertical"
+        android:background="@drawable/gradation_bg"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <TimePicker
+            android:id="@+id/timePicker"
+            android:theme="@style/MyTimePickerDialogStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+           />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <LinearLayout
+                android:id="@+id/dayGroup"
+                android:background="@drawable/white_round"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:paddingRight="20dp"
+                android:paddingLeft="20dp"
+                android:layout_height="wrap_content">
+
+                <include android:id="@+id/sunday"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    layout="@layout/day_check_view"/>
+
+                <include android:id="@+id/monday"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    layout="@layout/day_check_view"/>
+
+                <include android:id="@+id/tuesday"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    layout="@layout/day_check_view"/>
+
+                <include android:id="@+id/wednesday"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    layout="@layout/day_check_view"/>
+
+                <include android:id="@+id/thursday"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    layout="@layout/day_check_view"/>
+                <include android:id="@+id/friday"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    layout="@layout/day_check_view"/>
+                <include android:id="@+id/saturday"
+                    android:layout_weight="1"
+                    android:layout_height="wrap_content"
+                    android:layout_width="0dp"
+                    layout="@layout/day_check_view"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:gravity="center"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/minus_ico" />
+
+            <SeekBar
+                android:id="@+id/soundSize"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:max="10"
+                android:min="0"
+                android:progress="5"
+                android:progressTint="@color/white" />
+
+            <ImageView
+                android:layout_width="22dp"
+                android:layout_height="22dp"
+                android:src="@drawable/plus_ico" />
+        </LinearLayout>
+
+        <TextView
+            android:layout_marginTop="5dp"
+            android:textSize="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="소리크기"
+            android:textColor="@color/white" />
+        </LinearLayout>
+            <Switch
+                android:textSize="15dp"
+                android:textColor="@color/white"
+                android:id="@+id/vibrationSwitch"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:text="알람과 함께 진동" />
+
+        <Switch
+            android:textSize="15dp"
+            android:textColor="@color/white"
+            android:id="@+id/after5Switch"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:text="5분뒤 다시 울림" />
+
+        <Button
+            android:layout_marginTop="10dp"
+            android:layout_gravity="center"
+            android:id="@+id/confirmButton"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/trance"
+            android:text="확인"
+            android:textColor="@color/white"
+            android:textSize="20dp" />
+
+    </LinearLayout>
+</layout>
