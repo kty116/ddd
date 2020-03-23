@@ -23,6 +23,8 @@ import com.moms.babysounds.fragment.AwakeningFragment;
 import com.moms.babysounds.fragment.DeepSleepFragment;
 import com.moms.babysounds.fragment.MainFragment;
 import com.moms.babysounds.fragment.MethodOfExecutionFragment;
+import com.moms.babysounds.fragment.NotAutoSleepFragment;
+import com.moms.babysounds.fragment.NotAutoSleepFragment2;
 import com.moms.babysounds.fragment.RestFragment;
 
 import org.greenrobot.eventbus.EventBus;
@@ -76,10 +78,23 @@ public class MainActivity extends AppCompatActivity {
             MusicServiceEvent musicService = (MusicServiceEvent) event;
 
         } else if (event instanceof FragmentRemoveEvent) {
+            FragmentRemoveEvent fragmentRemoveEvent = (FragmentRemoveEvent) event;
+            Fragment fragment = fragmentRemoveEvent.getFragment();
+
+
+
             Log.d(TAG, "onMessageEvent: ddddddd");
             List<Fragment> fragments = getSupportFragmentManager().getFragments();
             if (fragments.size() > 0){
                 getSupportFragmentManager().popBackStackImmediate(MainFragment.class.getSimpleName(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                if (fragment instanceof MainFragment){
+                    MainFragment mainFragment = (MainFragment) fragment;
+                    getSupportFragmentManager().beginTransaction().replace(R.id.content_layout, mainFragment).commit();
+                }else if (fragment instanceof NotAutoSleepFragment){
+                    NotAutoSleepFragment2 notAutoSleepFragment2 = (NotAutoSleepFragment2) fragment;
+                    setFragment(notAutoSleepFragment2);
+                    getSupportFragmentManager().beginTransaction().replace(R.id.content_layout, MainFragment.newInstance("","")).commit();
+                }
                 getSupportFragmentManager().beginTransaction().replace(R.id.content_layout, fragment).commit();
             }
             Log.d(TAG, "onMessageEvent: "+fragments.size());

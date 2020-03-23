@@ -91,6 +91,7 @@ public class RestFragment extends DefaultFragment implements View.OnClickListene
         startMusicService();
 
         mBinding.layoutDefault.homeButton.setOnClickListener(this);
+        mBinding.layoutDefault.settingButton.setOnClickListener(this);
     }
 
     @Override
@@ -156,7 +157,7 @@ public class RestFragment extends DefaultFragment implements View.OnClickListene
                 startChangeBackground();
             } else {
                 stopChangeBackground();
-                EventBus.getDefault().post(new FragmentRemoveEvent());
+                EventBus.getDefault().post(new FragmentRemoveEvent(MainFragment.newInstance("","")));
             }
         }
     }

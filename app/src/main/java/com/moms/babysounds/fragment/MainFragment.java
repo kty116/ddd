@@ -99,7 +99,8 @@ public class MainFragment extends DefaultFragment implements View.OnClickListene
                 ((MainActivity)getActivity()).setFragment(fragment);
                 break;
             case R.id.m06:
-
+                fragment = NotAutoSleepFragment2.newInstance("D", "d");
+                ((MainActivity)getActivity()).setFragment(fragment);
                 break;
 
         }

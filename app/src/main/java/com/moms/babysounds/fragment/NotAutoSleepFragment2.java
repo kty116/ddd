@@ -22,22 +22,22 @@ import com.moms.babysounds.service.MusicService;
 
 import java.util.ArrayList;
 
-public class NotAutoSleepFragment extends DefaultFragment implements View.OnClickListener {
+public class NotAutoSleepFragment2 extends DefaultFragment implements View.OnClickListener {
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
     private String mParam1;
     private String mParam2;
     private FragmentNotAutoSleepBinding mBinding;
-    public static final String TAG = NotAutoSleepFragment.class.getSimpleName();
+    public static final String TAG = NotAutoSleepFragment2.class.getSimpleName();
     private TinyDB mTinyDB;
     private double mValueHz;
     private int mValueTime;
 
-    public NotAutoSleepFragment() {
+    public NotAutoSleepFragment2() {
     }
 
-    public static NotAutoSleepFragment newInstance(String param1, String param2) {
-        NotAutoSleepFragment fragment = new NotAutoSleepFragment();
+    public static NotAutoSleepFragment2 newInstance(String param1, String param2) {
+        NotAutoSleepFragment2 fragment = new NotAutoSleepFragment2();
         Bundle args = new Bundle();
         args.putString(ARG_PARAM1, param1);
         args.putString(ARG_PARAM2, param2);
@@ -73,7 +73,7 @@ public class NotAutoSleepFragment extends DefaultFragment implements View.OnClic
         Log.d(TAG, "onViewCreated: "+mValueHz);
         Log.d(TAG, "onViewCreated: "+mValueTime);
 
-        if (mValueTime == -1){
+        if (mValueHz == 0){
             mValueHz = 5.0;
             mValueTime = 60;
             mBinding.seekBarHz.setProgress(50);
@@ -83,10 +83,10 @@ public class NotAutoSleepFragment extends DefaultFragment implements View.OnClic
             mTinyDB.putDouble(Constants.SETTING_HZ,mValueHz);
             mTinyDB.putInt(Constants.SETTING_TIME,mValueTime);
         }else {
-            mBinding.hzText.setText("수면파 ( " + mValueHz + "hz )");
-            mBinding.timeText.setText("시간 ( " + mValueTime + "분 )");
             mBinding.seekBarHz.setProgress((int) (mValueHz * 10));
             mBinding.seekBarMin.setProgress(mValueTime);
+            mBinding.hzText.setText("수면파 ( " + mValueHz + "hz )");
+            mBinding.timeText.setText("시간 ( " + mValueTime + "분 )");
         }
 
         mBinding.confirmButton.setOnClickListener(this);
@@ -176,9 +176,10 @@ public class NotAutoSleepFragment extends DefaultFragment implements View.OnClic
             case R.id.confirmButton:
                 mTinyDB.putDouble(Constants.SETTING_HZ, mValueHz);
                 mTinyDB.putInt(Constants.SETTING_TIME, mValueTime);
-                ArrayList<AudioSetModel> audioSetModelList = new ArrayList<>();
-                audioSetModelList.add(new AudioSetModel(0, mValueHz *10, Constants.MINUTE * mValueTime, false));
-                ((MainActivity) getActivity()).setFragment(InduceSleepFragment.newInstance(audioSetModelList, ""));
+                getActivity().getSupportFragmentManager().popBackStack();
+//                ArrayList<AudioSetModel> audioSetModelList = new ArrayList<>();
+//                audioSetModelList.add(new AudioSetModel(MusicService.Audio.SINE, mValueHz, Constants.MINUTE * mValueTime, false));
+//                ((MainActivity) getActivity()).setFragment(InduceSleepFragment.newInstance(audioSetModelList, ""));
                 break;
         }
     }
