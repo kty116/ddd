@@ -6,11 +6,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,12 +29,12 @@ import com.moms.babysounds.common.TinyDB;
 import com.moms.babysounds.databinding.FragmentAwakeningBinding;
 import com.moms.babysounds.model.DayCheckListModel;
 import com.moms.babysounds.model.DayCheckModel;
-import com.moms.babysounds.service.MusicService;
 import com.moms.babysounds.service.WakeUpService;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class AwakeningFragment extends DefaultFragment implements View.OnClickListener {
     private static final String ARG_PARAM1 = "param1";
@@ -47,6 +50,8 @@ public class AwakeningFragment extends DefaultFragment implements View.OnClickLi
     private Intent mMusicIntent;
     private long mTriggerTime;
     private Intent alarmIntent;
+    private long mBefore30TriggerTime;
+    private float mValueHz;
 
     public AwakeningFragment() {
     }
@@ -117,6 +122,33 @@ public class AwakeningFragment extends DefaultFragment implements View.OnClickLi
             mDayGroupChildList.add(dayGroupChild);
         }
         mBinding.confirmButton.setOnClickListener(this);
+        mBinding.minButton.setOnClickListener(this);
+        mBinding.plusButton.setOnClickListener(this);
+//        mValueHz = 0.5f;
+//        mValueTime = 60;
+        mBinding.soundSize.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                mValueHz = ((float) progress / 10.0f);
+                Log.d(TAG, "onProgressChanged: "+mValueHz);
+//                mBinding.hzText.setText("수면파 ( " + mValueHz + "hz )");
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
+
+        mBinding.topLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
 
     }
 
@@ -125,7 +157,7 @@ public class AwakeningFragment extends DefaultFragment implements View.OnClickLi
         int min = mTinyDB.getInt(Constants.ALARM_MIN);
         boolean vab = mTinyDB.getBoolean(Constants.ALARM_VIB);
         boolean after5Alarm = mTinyDB.getBoolean(Constants.ALARM_AFTER_5_ALARM);
-        int soundSize = mTinyDB.getInt(Constants.ALARM_SOUND_SIZE);
+        float soundSize = mTinyDB.getFloat(Constants.ALARM_SOUND_SIZE);
         DayCheckListModel dayCheckModels2 = mTinyDB.getObject(Constants.ALARM_DATE_LIST, DayCheckListModel.class);
 
         if (hour != -1) {
@@ -139,7 +171,12 @@ public class AwakeningFragment extends DefaultFragment implements View.OnClickLi
 
             mBinding.vibrationSwitch.setChecked(vab);
             mBinding.after5Switch.setChecked(after5Alarm);
-            mBinding.soundSize.setProgress(soundSize);
+            if (soundSize == -1){
+                mTinyDB.putFloat(Constants.ALARM_SOUND_SIZE,0.5f);
+                mBinding.soundSize.setProgress(5);
+            }else {
+                mBinding.soundSize.setProgress((int) (soundSize * 10));
+            }
         }
 
         if (dayCheckModels2 == null) {
@@ -160,6 +197,22 @@ public class AwakeningFragment extends DefaultFragment implements View.OnClickLi
     public void onClick(View v) {
         super.onClick(v);
         switch (v.getId()) {
+
+            case R.id.min_button:
+                int progress = mBinding.soundSize.getProgress();
+                if (progress < 1){
+                }else {
+                    mBinding.soundSize.setProgress(mBinding.soundSize.getProgress() - 1);
+                }
+                break;
+
+            case R.id.plus_button:
+                int progress2 = mBinding.soundSize.getProgress();
+                if (progress2 > 9){
+                }else {
+                    mBinding.soundSize.setProgress(mBinding.soundSize.getProgress() + 1);
+                }
+                break;
 
             case R.id.confirmButton:
 
@@ -188,22 +241,63 @@ public class AwakeningFragment extends DefaultFragment implements View.OnClickLi
                     }
                     mTinyDB.putBoolean(Constants.ALARM_VIB, mBinding.vibrationSwitch.isChecked());
                     mTinyDB.putBoolean(Constants.ALARM_AFTER_5_ALARM, mBinding.after5Switch.isChecked());
-                    mTinyDB.putInt(Constants.ALARM_SOUND_SIZE, mBinding.soundSize.getProgress());
+                    mTinyDB.putFloat(Constants.ALARM_SOUND_SIZE, mValueHz);
 
-                    mTriggerTime = setTriggerTime(Constants.MINUTE * 30);
+                    mBefore30TriggerTime = setTriggerTime(-Constants.MINUTE * 30);
+                    mTriggerTime = setTriggerTime(0);
 
-                    setPlayMusicAlarm(false, 0);
-                    setPlayMusicAlarm(true,-Constants.MINUTE * 30);
+//                    SimpleDateFormat format1 = new SimpleDateFormat ( "MM월 dd일 HH시 mm분 ss");
+//                    String format_time2 = format1.format (mBefore30TriggerTime);
+//                    String format_time3 = format1.format (mTriggerTime);
+//
+//                    Log.d(TAG, "setTriggerTime2: "+format_time2);
+//                    Log.d(TAG, "setTriggerTime2: "+format_time3);
 
-                    SimpleDateFormat format1 = new SimpleDateFormat ( "MM월 dd일 HH시 mm분 ss");
+                    setOut30Alarm(false, 0);
+                    setIn30Alarm(false, 0);
 
-                    String format_time1 = format1.format (mTriggerTime - Constants.MINUTE * 30);
-                    String format_time2 = format1.format (mTriggerTime);
+                    if (System.currentTimeMillis() < mTriggerTime -Constants.MINUTE * 31){
 
-                    Log.d(TAG, "onClick: "+format_time1);
-                    Log.d(TAG, "onClick: "+format_time2);
+//                        Log.d(TAG, "onClick: 30분 뒤");
+                        setOut30Alarm(true,mBefore30TriggerTime);
+//                        SimpleDateFormat format1 = new SimpleDateFormat("EEE", Locale.KOREA);
+//String day = "";
+//                        String format_time1 = format1.format(System.currentTimeMillis());  //오늘 요일
+//                        if
+//                        for (int i = 0; i < mDayCheckModels.size(); i++) {
+//                            if (mDayCheckModels.get(i).isChecked()){
+//                                day = mDayCheckModels.get(i).getDay();
+//                            }
+//                        }
+//                        SimpleDateFormat format1 = new SimpleDateFormat ( "MM월 dd일 HH시 mm분");
+                        SimpleDateFormat format1 = new SimpleDateFormat ("HH시 mm분");
+                        String format_time2 = format1.format (mBefore30TriggerTime);
+                        String format_time3 = format1.format (mTriggerTime);
+                        Log.d(TAG, "onClick: "+format_time2);
+                        Log.d(TAG, "onClick: "+format_time3);
+                        Toast.makeText(getContext(), "매주 "+format_time3+"에 알람이 울립니다.", Toast.LENGTH_LONG).show();
 
-                    Toast.makeText(getContext(), format_time2+"에 알람이 울립니다.", Toast.LENGTH_LONG).show();
+                    }else {
+//                        Log.d(TAG, "onClick: 30분 안");
+                        setIn30Alarm(true, mTriggerTime);
+                        setOut30Alarm(true, mBefore30TriggerTime);
+                        SimpleDateFormat format1 = new SimpleDateFormat ( "HH시 mm분");
+                        String format_time2 = format1.format (mBefore30TriggerTime);
+                        String format_time3 = format1.format (mTriggerTime);
+                        Log.d(TAG, "onClick: "+format_time2);
+                        Log.d(TAG, "onClick: "+format_time3);
+                        Toast.makeText(getContext(), "오늘"+format_time3+"에 알람이 울립니다.", Toast.LENGTH_LONG).show();
+                    }
+
+//                    SimpleDateFormat format1 = new SimpleDateFormat ( "MM월 dd일 HH시 mm분 ss");
+//
+//                    String format_time1 = format1.format (mBefore30TriggerTime);
+//                    String format_time2 = format1.format (mTriggerTime);
+//
+//                    Log.d(TAG, "onClick: "+format_time1);
+//                    Log.d(TAG, "onClick: "+format_time2);
+//
+//                    Toast.makeText(getContext(), format_time2+"에 알람이 울립니다.", Toast.LENGTH_LONG).show();
                     getActivity().getSupportFragmentManager().popBackStack();
 
                 } else {
@@ -243,14 +337,14 @@ public class AwakeningFragment extends DefaultFragment implements View.OnClickLi
     private long setTriggerTime(long beforeTime)
     {
         // current Time
-        long atime = System.currentTimeMillis() + beforeTime;
+        long atime = System.currentTimeMillis();
         // timepicker
         Calendar curTime = Calendar.getInstance();
         curTime.set(Calendar.HOUR_OF_DAY, mTinyDB.getInt(Constants.ALARM_HOUR));
         curTime.set(Calendar.MINUTE, mTinyDB.getInt(Constants.ALARM_MIN));
         curTime.set(Calendar.SECOND, 0);
         curTime.set(Calendar.MILLISECOND, 0);
-        long btime = curTime.getTimeInMillis();
+        long btime = curTime.getTimeInMillis()+ beforeTime;
         long triggerTime = btime;
         if (atime > btime)
             triggerTime += 1000 * 60 * 60 * 24;
@@ -263,7 +357,8 @@ public class AwakeningFragment extends DefaultFragment implements View.OnClickLi
         super.onDestroy();
     }
 
-    public void setPlayMusicAlarm(boolean start, long time) {
+    public void setOut30Alarm(boolean start, long time) {
+//        mTinyDB.putLong("before30TriggerTime",mBefore30TriggerTime);
         long intervalTime = 24 * 60 * 60 * 1000;// 24시간
         alarmIntent = new Intent(getContext(), MusicReceivers.class);
         alarmIntent.setAction(Constants.WAKE_UP_ACTION);
@@ -272,7 +367,34 @@ public class AwakeningFragment extends DefaultFragment implements View.OnClickLi
         long delay = time;  //10분
 
         if (start) {  //true면 알람 시작
-                alarmManager.setRepeating(AlarmManager.RTC_WAKEUP, mTriggerTime + delay,intervalTime, pendingIntent);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, mBefore30TriggerTime, pendingIntent);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, mBefore30TriggerTime, pendingIntent);
+            } else {
+                alarmManager.set(AlarmManager.RTC_WAKEUP, mBefore30TriggerTime, pendingIntent);
+            }
+//                alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, mBefore30TriggerTime,intervalTime, pendingIntent);
+        } else {  //false면 알람 취소
+            alarmManager.cancel(pendingIntent);
+        }
+    }
+
+    public void setIn30Alarm(boolean start, long time) {
+        alarmIntent = new Intent(getContext(), MusicReceivers.class);
+        alarmIntent.setAction(Constants.IN_30_MIN_AWAKENING_ACTION);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(getContext(), 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+        long delay = time;  //10분
+
+        if (start) {  //true면 알람 시작
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, mTriggerTime, pendingIntent);
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, mTriggerTime, pendingIntent);
+            } else {
+                alarmManager.set(AlarmManager.RTC_WAKEUP, mTriggerTime, pendingIntent);
+            }
         } else {  //false면 알람 취소
             alarmManager.cancel(pendingIntent);
         }

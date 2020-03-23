@@ -4,21 +4,38 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.databinding.DataBindingUtil;
 
 import android.app.AlarmManager;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Vibrator;
+import android.provider.Settings;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 import com.moms.babysounds.R;
 import com.moms.babysounds.broadcastReceiver.MusicReceivers;
 import com.moms.babysounds.common.Constants;
 import com.moms.babysounds.common.TinyDB;
 import com.moms.babysounds.databinding.ActivityAlarmBinding;
+import com.moms.babysounds.event.WakeUpServiceEvent;
 
+import org.greenrobot.eventbus.EventBus;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class AlarmActivity extends AppCompatActivity implements View.OnClickListener {
@@ -26,6 +43,11 @@ public class AlarmActivity extends AppCompatActivity implements View.OnClickList
     private ActivityAlarmBinding mBinding;
     private TinyDB mTinyDB;
     private long mTriggerTime;
+    public static final String TAG = AlarmActivity.class.getSimpleName();
+    private int mAfterTime;
+    private BroadcastReceiver _tickReceiver;
+    private MediaPlayer mPlayer;
+    private Vibrator vibrator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,25 +57,58 @@ public class AlarmActivity extends AppCompatActivity implements View.OnClickList
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
+
         mBinding = DataBindingUtil.setContentView(this, R.layout.activity_alarm);
 
         mTinyDB = new TinyDB(this);
+        setTime();
+        if (mTinyDB.getBoolean(Constants.ALARM_AFTER_5_ALARM)) {
+            mBinding.after5Button.setVisibility(View.VISIBLE);
+            mBinding.after5Button.setOnClickListener(this);
+        }
 
-        mBinding.after5Button.setOnClickListener(this);
         mBinding.endButton.setOnClickListener(this);
+
+        mAfterTime = 0;
+
+        _tickReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                final String action = intent.getAction();
+
+                if (action.equals(Intent.ACTION_TIME_TICK)) {
+                    setTime();
+                }
+            }
+        };
+
+        IntentFilter _intentFilter = new IntentFilter();
+        _intentFilter.addAction(Intent.ACTION_TIME_TICK);
+
+        registerReceiver(_tickReceiver, _intentFilter);
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        setRingTon();
+        EventBus.getDefault().post(new WakeUpServiceEvent());
+    }
 
     @Override
     public void onClick(View v) {
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.after5Button:
                 //서비스 켜는 알람? 아니면 여기서 그냥 소리
-
-                if ()
                 mTriggerTime = setTriggerTime();
-                setPlayMusicAlarm(true, );
+                mAfterTime += 5;
+                if (System.currentTimeMillis() >= mTriggerTime + mAfterTime) {
+                    mAfterTime += 5;
+                }
+
+                setPlayMusicAlarm(true, Constants.MINUTE * mAfterTime);
+                finish();
                 break;
 
             case R.id.endButton:
@@ -63,8 +118,56 @@ public class AlarmActivity extends AppCompatActivity implements View.OnClickList
         }
     }
 
-    private long setTriggerTime()
-    {
+    public void setTime() {
+        long currentTime = System.currentTimeMillis();
+        SimpleDateFormat format1 = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat format2 = new SimpleDateFormat("MM월 dd일 EEEE");
+        SimpleDateFormat format3 = new SimpleDateFormat("a");
+        String time = format1.format(currentTime);
+        String date = format2.format(currentTime);
+        String ampm = format3.format(currentTime);
+
+        mBinding.timeText.setText(time);
+        mBinding.dateText.setText(date);
+        mBinding.amPmText.setText(ampm);
+        Log.d(TAG, "setTime: " + time + "/" + date + "/" + ampm);
+    }
+
+    public void setRingTon() {
+        float sound = mTinyDB.getFloat(Constants.ALARM_SOUND_SIZE);
+        Log.d(TAG, "setRingTon: "+sound);
+        boolean vib = mTinyDB.getBoolean(Constants.ALARM_VIB);
+        if (vib) {
+            vibrator = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+            long[] pattern = {2000, 100, 2000, 100}; // 1초 진동, 0.05초 대기, 1초 진동, 0.05초 대기
+            vibrator.vibrate(pattern, 0);
+        }
+
+        AudioManager audioManager =
+                (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+
+        audioManager.getStreamMaxVolume(10);
+//        audioManager.setStreamVolume(AudioManager.STREAM_ALARM,
+//               Audio, -1);
+
+        // 객체생성
+        mPlayer = new MediaPlayer();
+
+        Uri alert = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
+        try {
+            mPlayer.setDataSource(this, alert);
+            mPlayer.setAudioStreamType(AudioManager.STREAM_ALARM);
+//            mPlayer.setVolume(1.0f, 1.0f);
+            mPlayer.setLooping(true);  // 반복여부 지정
+            mPlayer.prepare();    // 실행전 준비
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        mPlayer.start();   // 실행 시작
+    }
+
+    private long setTriggerTime() {
         // timepicker
         Calendar curTime = Calendar.getInstance();
         curTime.set(Calendar.HOUR_OF_DAY, mTinyDB.getInt(Constants.ALARM_HOUR));
@@ -77,24 +180,42 @@ public class AlarmActivity extends AppCompatActivity implements View.OnClickList
         return triggerTime;
     }
 
-    public void setPlayMusicAlarm(boolean start, final long time) {
+    public void setPlayMusicAlarm(boolean start, long time) {
+
+        Log.d(TAG, "setPlayMusicAlarm: ");
 
         Intent alarmIntent = new Intent(this, MusicReceivers.class);
-        alarmIntent.setAction(Constants.PLAY_MUSIC_ACTION);
+        alarmIntent.setAction(Constants.AFTER_5_AWAKENING_ACTION);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        long delay = time;  //10분
+        long delay = time;
 
         if (start) {  //true면 알람 시작
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, setTriggerTime()+delay, pendingIntent);
+                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, mTriggerTime + delay, pendingIntent);
             } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                alarmManager.setExact(AlarmManager.RTC_WAKEUP, setTriggerTime()+delay, pendingIntent);
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, mTriggerTime + delay, pendingIntent);
             } else {
-                alarmManager.set(AlarmManager.RTC_WAKEUP, setTriggerTime()+delay, pendingIntent);
+                alarmManager.set(AlarmManager.RTC_WAKEUP, mTriggerTime + delay, pendingIntent);
             }
         } else {  //false면 알람 취소
             alarmManager.cancel(pendingIntent);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (_tickReceiver != null)
+            unregisterReceiver(_tickReceiver);
+
+        if (mPlayer.isPlaying()) {
+            mPlayer.stop();
+        }
+        mPlayer.release();
+
+        if (vibrator != null) {
+            vibrator.cancel();
         }
     }
 }

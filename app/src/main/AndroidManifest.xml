@@ -5,6 +5,9 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name = "android.permission.VIBRATE"/>
 
     <application
         android:name=".MyApplication"
@@ -29,10 +32,13 @@
         <service android:name=".service.MusicService" />
         <service android:name=".service.WakeUpService" />
 
-        <receiver android:name=".broadcastReceiver.MusicReceivers">
+        <receiver android:name=".broadcastReceiver.MusicReceivers"
+            android:enabled="true">
             <intent-filter>
                 <action android:name="play_music_action" />
                 <action android:name="wake_up_action" />
+                <action android:name="in_30_awakening_action" />
+                <action android:name="after_5_awakening_action" />
             </intent-filter>
         </receiver>
     </application>

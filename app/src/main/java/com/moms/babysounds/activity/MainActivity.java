@@ -47,7 +47,8 @@ public class MainActivity extends AppCompatActivity {
         mBinding = DataBindingUtil.setContentView(this,R.layout.activity_main);
 
         fragment = MainFragment.newInstance("","");
-        setFragment(fragment);
+        getSupportFragmentManager().beginTransaction().replace(R.id.content_layout, fragment).commit();
+//        setFragment(fragment);
     }
 
     public void setFragment(Fragment fragment){
@@ -79,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
             List<Fragment> fragments = getSupportFragmentManager().getFragments();
             if (fragments.size() > 0){
                 getSupportFragmentManager().popBackStackImmediate(MainFragment.class.getSimpleName(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                setFragment(fragment);
+                getSupportFragmentManager().beginTransaction().replace(R.id.content_layout, fragment).commit();
             }
             Log.d(TAG, "onMessageEvent: "+fragments.size());
 
@@ -92,8 +93,9 @@ public class MainActivity extends AppCompatActivity {
         long intervalTime = tempTime - backPressedTime;
 
         List<Fragment> fragments = getSupportFragmentManager().getFragments();
+        Log.d(TAG, "onBackPressed: "+fragments.size());
         if (fragments.size() > 1){
-            getSupportFragmentManager().popBackStack();
+           getSupportFragmentManager().popBackStack();
         } else if (0 <= intervalTime && FINISH_INTERVAL_TIME >= intervalTime) {
             super.onBackPressed();
         } else {

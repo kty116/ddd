@@ -5,6 +5,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -92,6 +93,12 @@ public class InduceSleepFragment extends DefaultFragment implements View.OnClick
         startMusicService();
 
         mBinding.layoutDefault.homeButton.setOnClickListener(this);
+        mBinding.topLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
     }
 
     @Override

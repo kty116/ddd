@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.renderscript.RenderScript;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
@@ -28,6 +29,7 @@ import com.moms.babysounds.common.TinyDB;
 import com.moms.babysounds.event.MessageEvent;
 import com.moms.babysounds.event.MusicServiceEvent;
 import com.moms.babysounds.event.PlayMusicEvent;
+import com.moms.babysounds.event.WakeUpServiceEvent;
 import com.moms.babysounds.model.AudioSetModel;
 
 import org.greenrobot.eventbus.EventBus;
@@ -59,7 +61,6 @@ public class WakeUpService extends Service {
     private Handler handler;
     private AudioTrack mAudioTrack;
     private Audio audio;
-    private Thread mThread;
     private boolean mChangeAudio = false;
     private ArrayList<AudioSetModel> mAudioSetModelList;
     private TinyDB mTinyDB;
@@ -76,7 +77,7 @@ public class WakeUpService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        Log.d(TAG, "onCreate: dddddddd");
+//        Log.d(TAG, "onCreate: dddddddd");
         createNoti("");
         EventBus.getDefault().register(this);
         mTinyDB = new TinyDB(getApplicationContext());
@@ -94,9 +95,9 @@ public class WakeUpService extends Service {
         if (audio2 != null) {
             audio2.stop();
         }
-        if (mThread != null && mThread.isAlive()) {
-            mThread.interrupt();
-        }
+
+        NotificationManager nManager = (NotificationManager) getApplication().getSystemService(Context.NOTIFICATION_SERVICE);
+        nManager.cancel(10);
 
         setPlayMusicAlarm(false, 0);
 
@@ -111,8 +112,28 @@ public class WakeUpService extends Service {
             if (intent.getAction() != null) {
                 switch (intent.getAction()) {
 
+                    case Constants.AFTER_5_AWAKENING_ACTION:
+                        createActiNoti("");
+//                        NotificationManager nManager = (NotificationManager) getApplication().getSystemService(Context.NOTIFICATION_SERVICE);
+//                        nManager.cancel(10);
+                        break;
+
+                    case Constants.IN_30_MIN_AWAKENING_ACTION:
+                        createActiNoti("");
+//                        NotificationManager nManager = (NotificationManager) getApplication().getSystemService(Context.NOTIFICATION_SERVICE);
+//                        nManager.cancel(10);
+                        break;
+
                     case Constants.AWAKENING_ACTION: //서비스 시작
                         createNoti("기상유도");
+//                        setPlayMusicAlarm(false, 0);
+//                        if (audio != null) {
+//                            audio.stop();
+//                        }
+//
+//                        if (audio2 != null) {
+//                            audio2.stop();
+//                        }
                         audio = new Audio();
                         audio2 = new Audio();
                         mTriggerTime = setTriggerTime();
@@ -128,9 +149,9 @@ public class WakeUpService extends Service {
                         Log.d(TAG, "onClick: "+format_time3);
 
                         mAudioSetModelList = new ArrayList<>();
-                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 10, mTriggerTime - Constants.MINUTE * 30, false));
-                        mAudioSetModelList.add(new AudioSetModel(Audio.SQUARE, 10, mTriggerTime - Constants.MINUTE * 20, false));
-                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 13, mTriggerTime - Constants.MINUTE * 10, false));
+                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 10, mTriggerTime - Constants.MINUTE * 20, false));
+                        mAudioSetModelList.add(new AudioSetModel(Audio.SQUARE, 10, mTriggerTime - Constants.MINUTE * 10, false));
+                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 13, mTriggerTime, false));
                         if (audio != null) {
                             audio.start();
                             setAudio(mAudioSetModelList, 0);
@@ -232,20 +253,23 @@ public class WakeUpService extends Service {
 
                 if (mAudioSetModelList.get(i).isAlreadyPlayed()) {
                     if (i == mAudioSetModelList.size() - 1) {  //마지막 이면 끄기
-                        Log.d(TAG, "onMessageEvent: ddddddd");
-                        Intent intent = new Intent(getApplicationContext(), AlarmActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
+//                        Log.d(TAG, "onMessageEvent: ddddddd");
+                        createActiNoti("");
+//                        Intent intent = new Intent(getApplicationContext(), AlarmActivity.class);
+//                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_CLEAR_TASK);
+//                        startActivity(intent);
 
-                        stopForeground(true);
+//                        stopForeground(true);
 //                        EventBus.getDefault().post(new MusicServiceEvent(false));
-                        stopSelf();
+//                        stopSelf();
                     }
                 } else {
                     setAudio(mAudioSetModelList, i);
                     break;
                 }
             }
+        }else if (event instanceof WakeUpServiceEvent){
+           stopSelf();
         }
     }
 
@@ -400,6 +424,33 @@ public class WakeUpService extends Service {
 //        startForeground(1, mStateNoti.build());
 //    }
 
+    public void createActiNoti(String text) {
+
+        String channelId = "smart_wave_channel_i";
+        String channelName = "smart_wave_channel_nam";
+
+        NotificationManager notifManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel mChannel = new NotificationChannel(channelId, channelName, importance);
+            notifManager.createNotificationChannel(mChannel);
+        }
+
+        mStateNoti = new NotificationCompat.Builder(this, channelId)
+                .setContentTitle(getString(R.string.app_name))
+                .setSmallIcon(R.mipmap.ic_launcher)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setFullScreenIntent(alarmActivityPendingIntent(),true);
+
+        if (!text.isEmpty()) {
+            mStateNoti.setContentText(text);
+        }
+//        startForeground(10, mStateNoti.build());
+        notifManager.notify(10, mStateNoti.build());
+    }
+
     public void createNoti(String text) {
 
         String channelId = "smart_wave_channel_id";
@@ -409,7 +460,7 @@ public class WakeUpService extends Service {
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
 
-            int importance = NotificationManager.IMPORTANCE_LOW;
+            int importance = NotificationManager.IMPORTANCE_HIGH;
             NotificationChannel mChannel = new NotificationChannel(channelId, channelName, importance);
             notifManager.createNotificationChannel(mChannel);
         }
@@ -436,7 +487,8 @@ public class WakeUpService extends Service {
     private PendingIntent alarmActivityPendingIntent() {
 
         Intent clickNotiIntent = new Intent(this, AlarmActivity.class);
-        PendingIntent pending = PendingIntent.getActivity(this, 1, clickNotiIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        clickNotiIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK| Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
+        PendingIntent pending = PendingIntent.getActivity(this, 0, clickNotiIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         return pending;
     }
 

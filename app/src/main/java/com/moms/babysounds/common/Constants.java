@@ -14,6 +14,9 @@ public class Constants {
     public static final String AWAKENING_ACTION = "awakening_action";
     public static final String REST_ACTION = "rest_action";
 
+    public static final String AFTER_5_AWAKENING_ACTION = "after_5_awakening_action";
+    public static final String IN_30_MIN_AWAKENING_ACTION = "in_30_awakening_action";
+
     public static final String STOP_SERVICE_ACTION = "stop_service_action";
     public static final String PLAY_MUSIC_ACTION = "play_music_action";
     public static final String WAKE_UP_ACTION = "wake_up_action";
@@ -31,7 +34,7 @@ public class Constants {
 
     public static final String AUDIO_LIST = "start_audio_list";
 
-    public static final long MINUTE = 1000;
+    public static final long MINUTE = 1000 * 60;
 
 
 

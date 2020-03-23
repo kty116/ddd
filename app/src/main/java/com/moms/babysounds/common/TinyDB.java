@@ -222,7 +222,7 @@ public class TinyDB {
      * @return float value at 'key' or 'defaultValue' if key not found
      */
     public float getFloat(String key) {
-        return preferences.getFloat(key, 0);
+        return preferences.getFloat(key, -1);
     }
 
     /**

@@ -56,7 +56,6 @@ public class MusicService extends Service {
     private Handler handler;
     private AudioTrack mAudioTrack;
     private Audio audio;
-    private Thread mThread;
     private boolean mChangeAudio = false;
     private ArrayList<AudioSetModel> mAudioSetModelList;
     private TinyDB mTinyDB;
@@ -84,9 +83,6 @@ public class MusicService extends Service {
         if (audio != null) {
             audio.stop();
         }
-        if (mThread != null && mThread.isAlive()) {
-            mThread.interrupt();
-        }
 
         setPlayMusicAlarm(false, 0);
 
@@ -101,7 +97,12 @@ public class MusicService extends Service {
             if (intent.getAction() != null) {
                 switch (intent.getAction()) {
                     case Constants.INDUCE_SLEEP_ACTION: //서비스 시작
+
                         createNoti("수면유도");
+                        setPlayMusicAlarm(false, 0);
+                        if (audio != null) {
+                            audio.stop();
+                        }
                         Bundle bundle = intent.getExtras();
 
                         audio = new Audio();
@@ -121,6 +122,10 @@ public class MusicService extends Service {
 
                     case Constants.DEEP_SLEEP_ACTION: //서비스 시작
                         createNoti("깊은수면");
+                        setPlayMusicAlarm(false, 0);
+                        if (audio != null) {
+                            audio.stop();
+                        }
                         audio = new Audio();
 
                         mAudioSetModelList = new ArrayList<>();
@@ -146,6 +151,10 @@ public class MusicService extends Service {
 
                     case Constants.REST_ACTION: //서비스 시작
                         createNoti("휴식");
+                        setPlayMusicAlarm(false, 0);
+                        if (audio != null) {
+                            audio.stop();
+                        }
 
                         audio = new Audio();
 
@@ -257,7 +266,7 @@ public class MusicService extends Service {
 
         // Stop
         protected void stop() {
-            frequency = 4.0;
+            frequency = 9.0;
             level = 0.0;
             Thread t = thread;
             thread = null;
@@ -411,12 +420,12 @@ public class MusicService extends Service {
         return pending;
     }
 
-    private PendingIntent alarmActivityPendingIntent() {
-
-        Intent clickNotiIntent = new Intent(this, AlarmActivity.class);
-        PendingIntent pending = PendingIntent.getActivity(this, 1, clickNotiIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-        return pending;
-    }
+//    private PendingIntent alarmActivityPendingIntent() {
+//
+//        Intent clickNotiIntent = new Intent(this, AlarmActivity.class);
+//        PendingIntent pending = PendingIntent.getActivity(this, 1, clickNotiIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+//        return pending;
+//    }
 
 //    private PendingIntent startScanPendingIntent() {
 //

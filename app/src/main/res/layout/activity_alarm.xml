@@ -71,6 +71,7 @@
             android:orientation="vertical">
 
             <Button
+                android:visibility="gone"
                 android:id="@+id/after5Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"

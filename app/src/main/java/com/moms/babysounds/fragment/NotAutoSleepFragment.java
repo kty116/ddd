@@ -2,6 +2,7 @@ package com.moms.babysounds.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
@@ -68,6 +69,17 @@ public class NotAutoSleepFragment extends DefaultFragment implements View.OnClic
         mValueHz = 5.0;
         mValueTime = 60;
         mBinding.confirmButton.setOnClickListener(this);
+        mBinding.hzMinButton.setOnClickListener(this);
+        mBinding.hzPlusButton.setOnClickListener(this);
+        mBinding.timeMinButton.setOnClickListener(this);
+        mBinding.timePlusButton.setOnClickListener(this);
+
+        mBinding.topLayout.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return true;
+            }
+        });
 
         mBinding.seekBarHz.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -107,6 +119,37 @@ public class NotAutoSleepFragment extends DefaultFragment implements View.OnClic
     public void onClick(View v) {
         super.onClick(v);
         switch (v.getId()) {
+            case R.id.hzMinButton:
+                int progress = mBinding.seekBarHz.getProgress();
+                if (progress < 31){
+                }else {
+                    mBinding.seekBarHz.setProgress(mBinding.seekBarHz.getProgress() - 1);
+                }
+                break;
+
+            case R.id.hzPlusButton:
+                int progress2 = mBinding.seekBarHz.getProgress();
+                if (progress2 > 69){
+                }else {
+                    mBinding.seekBarHz.setProgress(mBinding.seekBarHz.getProgress() + 1);
+                }
+                break;
+
+            case R.id.timeMinButton:
+                int progress3 = mBinding.seekBarMin.getProgress();
+                if (progress3 < 31){
+                }else {
+                    mBinding.seekBarMin.setProgress(mBinding.seekBarMin.getProgress() - 1);
+                }
+                break;
+
+            case R.id.timePlusButton:
+                int progress4 = mBinding.seekBarMin.getProgress();
+                if (progress4 > 69){
+                }else {
+                    mBinding.seekBarMin.setProgress(mBinding.seekBarMin.getProgress() + 1);
+                }
+                break;
             case R.id.confirmButton:
                 ArrayList<AudioSetModel> audioSetModelList = new ArrayList<>();
                 audioSetModelList.add(new AudioSetModel(MusicService.Audio.SINE, mValueHz, Constants.MINUTE * mValueTime, false));
