@@ -93,6 +93,7 @@ public class InduceSleepFragment extends DefaultFragment implements View.OnClick
         startMusicService();
 
         mBinding.layoutDefault.homeButton.setOnClickListener(this);
+        mBinding.layoutDefault.settingButton.setOnClickListener(this);
         mBinding.topLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -167,7 +168,7 @@ public class InduceSleepFragment extends DefaultFragment implements View.OnClick
                 startChangeBackground();
             } else {
                 stopChangeBackground();
-                EventBus.getDefault().post(new FragmentRemoveEvent());
+                EventBus.getDefault().post(new FragmentRemoveEvent(MainFragment.newInstance("","")));
             }
         }
     }

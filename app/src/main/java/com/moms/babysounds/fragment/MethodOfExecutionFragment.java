@@ -62,6 +62,7 @@ public class MethodOfExecutionFragment extends DefaultFragment implements View.O
         mBinding.autoButton.setOnClickListener(this);
         mBinding.notAutoButton.setOnClickListener(this);
         mBinding.layoutDefault.homeButton.setOnClickListener(this);
+        mBinding.layoutDefault.settingButton.setOnClickListener(this);
         mBinding.topLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -78,9 +79,9 @@ public class MethodOfExecutionFragment extends DefaultFragment implements View.O
             case R.id.auto_button:
                 //자동
                 ArrayList<AudioSetModel> audioSetModelList = new ArrayList<>();
-                audioSetModelList.add(new AudioSetModel(MusicService.Audio.SINE, 4, Constants.MINUTE * 5, false));
-                audioSetModelList.add(new AudioSetModel(MusicService.Audio.SINE, 5, Constants.MINUTE * 10, false));
-                audioSetModelList.add(new AudioSetModel(MusicService.Audio.SINE, 4, Constants.MINUTE * 10, false));
+                audioSetModelList.add(new AudioSetModel(0, 4*10, Constants.MINUTE * 5, false));
+                audioSetModelList.add(new AudioSetModel(0, 5*10, Constants.MINUTE * 10, false));
+                audioSetModelList.add(new AudioSetModel(0, 4*10, Constants.MINUTE * 10, false));
                 ((MainActivity)getActivity()).setFragment(InduceSleepFragment.newInstance(audioSetModelList,""));
                 break;
 

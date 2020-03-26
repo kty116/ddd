@@ -36,6 +36,9 @@ public class Constants {
 
     public static final long MINUTE = 1000 * 60;
 
+    public static final String SETTING_HZ = "setting_hz";
+    public static final String SETTING_TIME = "setting_time";
+
 
 
 

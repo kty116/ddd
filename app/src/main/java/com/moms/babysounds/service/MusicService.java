@@ -74,6 +74,11 @@ public class MusicService extends Service {
         EventBus.getDefault().register(this);
         mTinyDB = new TinyDB(getApplicationContext());
 
+        audio = new Audio();
+        audio.start();
+
+        if (audio != null)
+            audio.waveform = Audio.SINE;
     }
 
     @Override
@@ -99,14 +104,8 @@ public class MusicService extends Service {
                     case Constants.INDUCE_SLEEP_ACTION: //서비스 시작
 
                         createNoti("수면유도");
-                        setPlayMusicAlarm(false, 0);
-                        if (audio != null) {
-                            audio.stop();
-                        }
+
                         Bundle bundle = intent.getExtras();
-
-                        audio = new Audio();
-
                         mAudioSetModelList = (ArrayList<AudioSetModel>) bundle.getSerializable(Constants.AUDIO_LIST);
                         Log.d(TAG, "onStartCommand: " + mAudioSetModelList.size());
 
@@ -115,61 +114,45 @@ public class MusicService extends Service {
                         }
 
                         if (audio != null) {
-                            audio.start();
                             setAudio(mAudioSetModelList, 0);
                         }
+
+                        setPlayMusicAlarm(false, 0);
+
+
                         break;
 
                     case Constants.DEEP_SLEEP_ACTION: //서비스 시작
                         createNoti("깊은수면");
                         setPlayMusicAlarm(false, 0);
-                        if (audio != null) {
-                            audio.stop();
-                        }
-                        audio = new Audio();
 
                         mAudioSetModelList = new ArrayList<>();
-                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 2, Constants.MINUTE * 10, false));
-                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 3, Constants.MINUTE * 10, false));
-                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 4, Constants.MINUTE * 10, false));
+                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 2 *10, Constants.MINUTE * 10, false));
+                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 3 *10, Constants.MINUTE * 10, false));
+                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 4 *10, Constants.MINUTE * 10, false));
                         if (audio != null) {
-                            audio.start();
                             setAudio(mAudioSetModelList, 0);
                         }
 
                         break;
 
-//                    case Constants.AWAKENING_ACTION: //서비스 시작
-//
-//                        audio = new Audio();
-//
-//                        if (audio != null) {
-//                            audio.start();
-//                            setAudio(mAudioSetModelList, 0);
-//                        }
-//                        break;
-
                     case Constants.REST_ACTION: //서비스 시작
                         createNoti("휴식");
                         setPlayMusicAlarm(false, 0);
-                        if (audio != null) {
-                            audio.stop();
-                        }
-
-                        audio = new Audio();
 
                         mAudioSetModelList = new ArrayList<>();
-                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 8, Constants.MINUTE * 10, false));
-                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 10, Constants.MINUTE * 10, false));
-                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 12, Constants.MINUTE * 10, false));
+                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 8 *10, Constants.MINUTE * 10, false));
+                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 10 *10, Constants.MINUTE * 10, false));
+                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 12 *10, Constants.MINUTE * 10, false));
                         if (audio != null) {
-                            audio.start();
+
                             setAudio(mAudioSetModelList, 0);
                         }
 
                         break;
 
                     case Constants.STOP_SERVICE_ACTION:
+
                         EventBus.getDefault().post(new MusicServiceEvent(false));
                         stopSelf();
 
@@ -185,6 +168,12 @@ public class MusicService extends Service {
         AudioSetModel audioSetModel = audioSetModelList.get(index);
         audio.waveform = audioSetModel.getAudioWaveForm();
         audio.frequency = audioSetModel.getHz();
+
+        Log.d(TAG, "setAudio: "+audioSetModel.getHz());
+
+//        if (audio != null)
+//            audio.waveform = Audio.SINE;
+//        audio.frequency = 80.0;
 
         audioSetModel.setAlreadyPlayed(true);
 
@@ -224,6 +213,7 @@ public class MusicService extends Service {
                
                 if (mAudioSetModelList.get(i).isAlreadyPlayed()) {
                     if (i == mAudioSetModelList.size() - 1) {  //마지막 이면 끄기
+
                         stopForeground(true);
                         EventBus.getDefault().post(new MusicServiceEvent(false));
                         stopSelf();
@@ -237,13 +227,13 @@ public class MusicService extends Service {
     }
 
     // Audio
-    public class Audio implements Runnable {
+    protected class Audio implements Runnable
+    {
+        protected static final int SINE = 0;
+        protected static final int SQUARE = 1;
+        protected static final int SAWTOOTH = 2;
 
-        public static final int SINE = 0;
-        public static final int SQUARE = 1;
-        public static final int SAWTOOTH = 2;
-
-        protected int waveform;
+        protected int waveform ;
         protected boolean mute;
 
         protected double frequency;
@@ -253,35 +243,39 @@ public class MusicService extends Service {
 
         private AudioTrack audioTrack;
 
-        protected Audio() {
-            frequency = 4.0;
+        protected Audio()
+        {
+            frequency = 5.0;
             level = 1.0;
         }
 
         // Start
-        protected void start() {
+        protected void start()
+        {
             thread = new Thread(this, "Audio");
             thread.start();
         }
 
         // Stop
-        protected void stop() {
-            frequency = 9.0;
-            level = 0.0;
+        protected void stop()
+        {
             Thread t = thread;
+            thread.interrupt();
             thread = null;
 
             // Wait for the thread to exit
-            while (t != null && t.isAlive())
-                Thread.yield();
+//            while (t != null && t.isAlive())
+//                Thread.yield();
         }
 
-        public void run() {
+        public void run()
+        {
             processAudio();
         }
 
         // Process audio
-        protected void processAudio() {
+        protected void processAudio()
+        {
             short buffer[];
 
             int rate =
@@ -294,8 +288,10 @@ public class MusicService extends Service {
             int sizes[] = {1024, 2048, 4096, 8192, 16384, 32768};
             int size = 0;
 
-            for (int s : sizes) {
-                if (s > minSize) {
+            for (int s : sizes)
+            {
+                if (s > minSize)
+                {
                     size = s;
                     break;
                 }
@@ -315,7 +311,8 @@ public class MusicService extends Service {
             // Check state
             int state = audioTrack.getState();
 
-            if (state != AudioTrack.STATE_INITIALIZED) {
+            if (state != AudioTrack.STATE_INITIALIZED)
+            {
                 audioTrack.release();
                 return;
             }
@@ -330,34 +327,40 @@ public class MusicService extends Service {
             double l = 0.0;
             double q = 0.0;
 
-            while (thread != null) {
-                // Fill the current buffer
-                for (int i = 0; i < buffer.length; i++) {
-                    f += (frequency - f) / 4096.0;
-                    l += ((mute ? 0.0 : level) * 16384.0 - l) / 4096.0;
-                    q += (q < Math.PI) ? f * K : (f * K) - (2.0 * Math.PI);
+            while (thread != null)
+            {
+                try {
+                    // Fill the current buffer
+                    for (int i = 0; i < buffer.length; i++) {
+                        f += (frequency - f) / 4096.0;
+                        l += ((mute ? 0.0 : level) * 16384.0 - l) / 4096.0;
+                        q += (q < Math.PI) ? f * K : (f * K) - (2.0 * Math.PI);
 
-                    switch (waveform) {
-                        case SINE:
-                            buffer[i] = (short) Math.round(Math.sin(q) * l);
-                            break;
+                        switch (waveform) {
+                            case SINE:
+                                buffer[i] = (short) Math.round(Math.sin(q) * l);
+                                break;
 
-                        case SQUARE:
-                            buffer[i] = (short) ((q > 0.0) ? l : -l);
-                            break;
+                            case SQUARE:
+                                buffer[i] = (short) ((q > 0.0) ? l : -l);
+                                break;
 
-                        case SAWTOOTH:
-                            buffer[i] = (short) Math.round((q / Math.PI) * l);
-                            break;
+                            case SAWTOOTH:
+                                buffer[i] = (short) Math.round((q / Math.PI) * l);
+                                break;
+                        }
                     }
+
+                    audioTrack.write(buffer, 0, buffer.length);
+                }catch (Exception e){
                 }
-                audioTrack.write(buffer, 0, buffer.length);
             }
 
             audioTrack.stop();
             audioTrack.release();
         }
     }
+
 
 //    public void alramNoti(String text) {
 //

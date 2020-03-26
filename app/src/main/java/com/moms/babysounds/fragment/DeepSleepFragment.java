@@ -90,6 +90,7 @@ public class DeepSleepFragment extends DefaultFragment implements View.OnClickLi
         startMusicService();
 
         mBinding.layoutDefault.homeButton.setOnClickListener(this);
+        mBinding.layoutDefault.settingButton.setOnClickListener(this);
         mBinding.topLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -161,7 +162,7 @@ public class DeepSleepFragment extends DefaultFragment implements View.OnClickLi
                 startChangeBackground();
             } else {
                 stopChangeBackground();
-                EventBus.getDefault().post(new FragmentRemoveEvent());
+                EventBus.getDefault().post(new FragmentRemoveEvent(MainFragment.newInstance("","")));
             }
         }
     }
