@@ -7,7 +7,8 @@
     <color name="white">#ffffff</color>
     <color name="settingBackground1">#163C5F</color>
     <color name="settingBackground2">#1A5E8D</color>
-    
+    <color name="navy">#1C3647</color>
+
     <color name="MethodOfExecution1">#2675A0</color>
     <color name="MethodOfExecution2">#4EC0DD</color>
 

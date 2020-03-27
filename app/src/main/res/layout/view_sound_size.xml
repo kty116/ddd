@@ -7,20 +7,20 @@
         android:gravity="center">
 
         <CheckBox
-            android:id="@+id/dayCheck"
+            android:id="@+id/volumeCheck"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:button="@drawable/checkbox_selector" />
+            android:button="@drawable/setting_checkbox_selector" />
 
         <TextView
-            android:id="@+id/dayText"
-            android:text="일"
+            android:id="@+id/volumeText"
+            android:text="1"
+            android:textSize="18dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:textColor="@color/black"
-            android:textStyle="bold" />
+            android:textColor="@color/navy" />
     </FrameLayout>
 
 </layout>

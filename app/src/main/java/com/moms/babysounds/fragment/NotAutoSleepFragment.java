@@ -6,7 +6,10 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
+import android.widget.RadioGroup;
 import android.widget.SeekBar;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -32,6 +35,7 @@ public class NotAutoSleepFragment extends DefaultFragment implements View.OnClic
     private TinyDB mTinyDB;
     private double mValueHz;
     private int mValueTime;
+    private int mVolume;
 
     public NotAutoSleepFragment() {
     }
@@ -67,22 +71,95 @@ public class NotAutoSleepFragment extends DefaultFragment implements View.OnClic
 
         mTinyDB = new TinyDB(getContext());
 
-        mValueHz = mTinyDB.getDouble(Constants.SETTING_HZ,0);
+        mBinding.volume1Button.volumeText.setText("1");
+        mBinding.volume2Button.volumeText.setText("2");
+        mBinding.volume3Button.volumeText.setText("3");
+
+        mValueHz = mTinyDB.getDouble(Constants.SETTING_HZ, 0);
         mValueTime = mTinyDB.getInt(Constants.SETTING_TIME);
+        mVolume = mTinyDB.getInt(Constants.SETTING_VOLUME);
 
-        Log.d(TAG, "onViewCreated: "+mValueHz);
-        Log.d(TAG, "onViewCreated: "+mValueTime);
+        for (int i = 0; i < mBinding.volumeLayout.getChildCount(); i++) {
+            View soundSizeButton = mBinding.volumeLayout.getChildAt(i);
+            final CheckBox soundSizeCheck = soundSizeButton.findViewById(R.id.volumeCheck);
+            TextView soundSizeText = soundSizeButton.findViewById(R.id.volumeText);
 
-        if (mValueTime == -1){
+            soundSizeText.setText("Dddddd");
+            if (mVolume == 0){
+                mTinyDB.putInt(Constants.SETTING_VOLUME, 2);
+                mVolume = 2;
+            }
+
+            if (soundSizeText.getText().equals(mVolume)) {
+                soundSizeCheck.setChecked(true);
+                soundSizeText.setTextColor(getResources().getColor(R.color.white));
+            }else {
+                soundSizeCheck.setChecked(false);
+                soundSizeText.setTextColor(getResources().getColor(R.color.navy));
+            }
+
+//            switch (mVolume){
+//                case 1:
+//
+//                    for (int j = 0; j < ; j++) {
+//
+//                    }
+//                    if (soundSizeCheck.isChecked()) {
+//                        soundSizeText.setTextColor(getResources().getColor(R.color.white));
+//                        soundSizeCheck.setChecked(true);
+//                    } else {
+//                        soundSizeText.setTextColor(getResources().getColor(R.color.navy));
+//                        soundSizeCheck.setChecked(false);
+//                    }
+//                    break;
+//                case 2:
+//
+//                    break;
+//                case 3:
+//
+//                    break;
+
+            }
+
+//            if (soundSizeCheck.isChecked()) {
+//                soundSizeText.setTextColor(getResources().getColor(R.color.white));
+//                soundSizeCheck.setChecked(true);
+//            } else {
+//                soundSizeText.setTextColor(getResources().getColor(R.color.navy));
+//                soundSizeCheck.setChecked(false);
+//            }
+
+//            soundSizeCheck.setChecked(mVolume);
+//
+//            soundSizeButton.findViewById(R.id.dayCheck).setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    if (soundSizeCheck.isChecked()) {
+//                        dayText.setTextColor(getResources().getColor(R.color.black));
+//                    } else {
+//                        dayText.setTextColor(getResources().getColor(R.color.navy));
+//                    }
+//                    mDayCheckModels.get(finalI).setChecked(((CheckBox) v).isChecked());
+//                }
+//            });
+//
+//            soundSizeButton.findViewById(R.id.dayCheck).setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                }
+//            });
+//        }
+
+        if (mValueTime == -1) {
             mValueHz = 5.0;
             mValueTime = 60;
             mBinding.seekBarHz.setProgress(50);
             mBinding.seekBarMin.setProgress(60);
             mBinding.hzText.setText("수면파 ( " + mValueHz + "hz )");
             mBinding.timeText.setText("시간 ( " + mValueTime + "분 )");
-            mTinyDB.putDouble(Constants.SETTING_HZ,mValueHz);
-            mTinyDB.putInt(Constants.SETTING_TIME,mValueTime);
-        }else {
+            mTinyDB.putDouble(Constants.SETTING_HZ, mValueHz);
+            mTinyDB.putInt(Constants.SETTING_TIME, mValueTime);
+        } else {
             mBinding.hzText.setText("수면파 ( " + mValueHz + "hz )");
             mBinding.timeText.setText("시간 ( " + mValueTime + "분 )");
             mBinding.seekBarHz.setProgress((int) (mValueHz * 10));
@@ -144,32 +221,32 @@ public class NotAutoSleepFragment extends DefaultFragment implements View.OnClic
         switch (v.getId()) {
             case R.id.hzMinButton:
                 int progress = mBinding.seekBarHz.getProgress();
-                if (progress < 31){
-                }else {
+                if (progress < 31) {
+                } else {
                     mBinding.seekBarHz.setProgress(mBinding.seekBarHz.getProgress() - 1);
                 }
                 break;
 
             case R.id.hzPlusButton:
                 int progress2 = mBinding.seekBarHz.getProgress();
-                if (progress2 > 69){
-                }else {
+                if (progress2 > 69) {
+                } else {
                     mBinding.seekBarHz.setProgress(mBinding.seekBarHz.getProgress() + 1);
                 }
                 break;
 
             case R.id.timeMinButton:
                 int progress3 = mBinding.seekBarMin.getProgress();
-                if (progress3 < 31){
-                }else {
+                if (progress3 < 31) {
+                } else {
                     mBinding.seekBarMin.setProgress(mBinding.seekBarMin.getProgress() - 1);
                 }
                 break;
 
             case R.id.timePlusButton:
                 int progress4 = mBinding.seekBarMin.getProgress();
-                if (progress4 > 69){
-                }else {
+                if (progress4 > 69) {
+                } else {
                     mBinding.seekBarMin.setProgress(mBinding.seekBarMin.getProgress() + 1);
                 }
                 break;
@@ -177,7 +254,7 @@ public class NotAutoSleepFragment extends DefaultFragment implements View.OnClic
                 mTinyDB.putDouble(Constants.SETTING_HZ, mValueHz);
                 mTinyDB.putInt(Constants.SETTING_TIME, mValueTime);
                 ArrayList<AudioSetModel> audioSetModelList = new ArrayList<>();
-                audioSetModelList.add(new AudioSetModel(0, mValueHz *10, Constants.MINUTE * mValueTime, false));
+                audioSetModelList.add(new AudioSetModel(0, mValueHz * 10, Constants.MINUTE * mValueTime, false));
                 ((MainActivity) getActivity()).setFragment(InduceSleepFragment.newInstance(audioSetModelList, ""));
                 break;
         }

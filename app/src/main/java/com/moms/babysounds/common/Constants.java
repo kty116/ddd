@@ -38,6 +38,7 @@ public class Constants {
 
     public static final String SETTING_HZ = "setting_hz";
     public static final String SETTING_TIME = "setting_time";
+    public static final String SETTING_VOLUME = "setting_volume";
 
 
 

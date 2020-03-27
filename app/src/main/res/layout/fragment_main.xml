@@ -113,12 +113,11 @@
                     android:orientation="vertical">
 
                     <ImageView
-                        android:id="@+id/m06"
+                        android:id="@+id/m04"
                         android:layout_width="80dp"
                         android:layout_height="80dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/m_06" />
-
+                        android:src="@drawable/m_04" />
                 </LinearLayout>
 
                 <LinearLayout
@@ -129,13 +128,15 @@
                     android:orientation="vertical">
 
                     <ImageView
-                        android:visibility="gone"
-                        android:id="@+id/m04"
+                        android:id="@+id/m06"
                         android:layout_width="80dp"
                         android:layout_height="80dp"
                         android:layout_gravity="center"
-                        android:src="@drawable/m_04" />
+                        android:src="@drawable/m_06" />
+
                 </LinearLayout>
+
+
 
 
             </LinearLayout>

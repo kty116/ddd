@@ -39,41 +39,41 @@
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
-                    layout="@layout/day_check_view"/>
+                    layout="@layout/view_day_check"/>
 
                 <include android:id="@+id/monday"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
-                    layout="@layout/day_check_view"/>
+                    layout="@layout/view_day_check"/>
 
                 <include android:id="@+id/tuesday"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
-                    layout="@layout/day_check_view"/>
+                    layout="@layout/view_day_check"/>
 
                 <include android:id="@+id/wednesday"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
-                    layout="@layout/day_check_view"/>
+                    layout="@layout/view_day_check"/>
 
                 <include android:id="@+id/thursday"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
-                    layout="@layout/day_check_view"/>
+                    layout="@layout/view_day_check"/>
                 <include android:id="@+id/friday"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
-                    layout="@layout/day_check_view"/>
+                    layout="@layout/view_day_check"/>
                 <include android:id="@+id/saturday"
                     android:layout_weight="1"
                     android:layout_height="wrap_content"
                     android:layout_width="0dp"
-                    layout="@layout/day_check_view"/>
+                    layout="@layout/view_day_check"/>
 
             </LinearLayout>
 

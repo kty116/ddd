@@ -1,5 +1,9 @@
 package com.moms.babysounds.fragment;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -7,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,6 +25,7 @@ import com.moms.babysounds.databinding.FragmentAwakeningBinding;
 import com.moms.babysounds.databinding.FragmentMainBinding;
 import com.moms.babysounds.model.DayCheckModel;
 
+import java.sql.BatchUpdateException;
 import java.util.ArrayList;
 
 public class MainFragment extends DefaultFragment implements View.OnClickListener {
@@ -92,7 +98,13 @@ public class MainFragment extends DefaultFragment implements View.OnClickListene
                 ((MainActivity)getActivity()).setFragment(fragment);
                 break;
             case R.id.m04:
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext(), R.style.MyAlertDialogStyle);
+                builder.setTitle("");
+                builder.setMessage("준비중인 기능 입니다.");
+                builder.setCancelable(true);
+                builder.setPositiveButton("확인", null);
 
+                builder.show();
                 break;
             case R.id.m05:
                 fragment = RestFragment.newInstance("D", "d");
@@ -102,8 +114,6 @@ public class MainFragment extends DefaultFragment implements View.OnClickListene
                 fragment = NotAutoSleepFragment2.newInstance("D", "d");
                 ((MainActivity)getActivity()).setFragment(fragment);
                 break;
-
         }
-
     }
 }
