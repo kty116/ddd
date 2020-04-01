@@ -1,8 +1,10 @@
 package com.moms.babysounds.fragment;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +22,7 @@ import androidx.fragment.app.Fragment;
 
 import com.moms.babysounds.R;
 import com.moms.babysounds.activity.MainActivity;
+import com.moms.babysounds.common.Constants;
 import com.moms.babysounds.common.TinyDB;
 import com.moms.babysounds.databinding.FragmentAwakeningBinding;
 import com.moms.babysounds.databinding.FragmentMainBinding;
@@ -72,12 +75,17 @@ public class MainFragment extends DefaultFragment implements View.OnClickListene
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        mTinyDB = new TinyDB(getContext());
         mBinding.m01.setOnClickListener(this);
         mBinding.m02.setOnClickListener(this);
         mBinding.m03.setOnClickListener(this);
         mBinding.m04.setOnClickListener(this);
         mBinding.m05.setOnClickListener(this);
         mBinding.m06.setOnClickListener(this);
+
+        if (mTinyDB.getInt(Constants.SETTING_VOLUME) == -1) {
+            mTinyDB.putInt(Constants.SETTING_VOLUME, 2);
+        }
     }
 
     @Override

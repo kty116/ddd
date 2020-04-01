@@ -52,12 +52,13 @@ public class MusicReceivers extends BroadcastReceiver {
             String format_time1 = format1.format(System.currentTimeMillis());
 
             DayCheckListModel dayCheckListModel = mTinyDB.getObject(Constants.ALARM_DATE_LIST, DayCheckListModel.class);
+            if (dayCheckListModel != null) {
+                for (int i = 0; i < dayCheckListModel.getCheckModels().size(); i++) {
+                    if (dayCheckListModel.getCheckModels().get(i).getDay().equals(format_time1)) {
+                        if (dayCheckListModel.getCheckModels().get(i).isChecked()) {
+                            startMusicService(context);
 
-            for (int i = 0; i < dayCheckListModel.getCheckModels().size(); i++) {
-                if (dayCheckListModel.getCheckModels().get(i).getDay().equals(format_time1)) {
-                    if (dayCheckListModel.getCheckModels().get(i).isChecked()) {
-                        startMusicService(context);
-
+                        }
                     }
                 }
             }

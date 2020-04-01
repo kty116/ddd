@@ -71,32 +71,9 @@ public class NotAutoSleepFragment extends DefaultFragment implements View.OnClic
 
         mTinyDB = new TinyDB(getContext());
 
-        mBinding.volume1Button.volumeText.setText("1");
-        mBinding.volume2Button.volumeText.setText("2");
-        mBinding.volume3Button.volumeText.setText("3");
-
         mValueHz = mTinyDB.getDouble(Constants.SETTING_HZ, 0);
         mValueTime = mTinyDB.getInt(Constants.SETTING_TIME);
-        mVolume = mTinyDB.getInt(Constants.SETTING_VOLUME);
 
-        for (int i = 0; i < mBinding.volumeLayout.getChildCount(); i++) {
-            View soundSizeButton = mBinding.volumeLayout.getChildAt(i);
-            final CheckBox soundSizeCheck = soundSizeButton.findViewById(R.id.volumeCheck);
-            TextView soundSizeText = soundSizeButton.findViewById(R.id.volumeText);
-
-            soundSizeText.setText("Dddddd");
-            if (mVolume == 0){
-                mTinyDB.putInt(Constants.SETTING_VOLUME, 2);
-                mVolume = 2;
-            }
-
-            if (soundSizeText.getText().equals(mVolume)) {
-                soundSizeCheck.setChecked(true);
-                soundSizeText.setTextColor(getResources().getColor(R.color.white));
-            }else {
-                soundSizeCheck.setChecked(false);
-                soundSizeText.setTextColor(getResources().getColor(R.color.navy));
-            }
 
 //            switch (mVolume){
 //                case 1:
@@ -119,7 +96,7 @@ public class NotAutoSleepFragment extends DefaultFragment implements View.OnClic
 //
 //                    break;
 
-            }
+//            }
 
 //            if (soundSizeCheck.isChecked()) {
 //                soundSizeText.setTextColor(getResources().getColor(R.color.white));
@@ -150,7 +127,7 @@ public class NotAutoSleepFragment extends DefaultFragment implements View.OnClic
 //            });
 //        }
 
-        if (mValueTime == -1) {
+        if (mValueTime == 0) {
             mValueHz = 5.0;
             mValueTime = 60;
             mBinding.seekBarHz.setProgress(50);
@@ -254,7 +231,7 @@ public class NotAutoSleepFragment extends DefaultFragment implements View.OnClic
                 mTinyDB.putDouble(Constants.SETTING_HZ, mValueHz);
                 mTinyDB.putInt(Constants.SETTING_TIME, mValueTime);
                 ArrayList<AudioSetModel> audioSetModelList = new ArrayList<>();
-                audioSetModelList.add(new AudioSetModel(0, mValueHz * 10, Constants.MINUTE * mValueTime, false));
+                audioSetModelList.add(new AudioSetModel(0, mValueHz * Constants.SETTING_HZ_UP, Constants.MINUTE * mValueTime, false));
                 ((MainActivity) getActivity()).setFragment(InduceSleepFragment.newInstance(audioSetModelList, ""));
                 break;
         }

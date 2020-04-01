@@ -24,7 +24,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:layout_weight="1.5" />
+                android:layout_weight="1.7" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -136,6 +136,53 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
+                        android:layout_weight="3.5"
+                        android:gravity="center_vertical"
+                        android:orientation="vertical"
+                        android:paddingLeft="50dp"
+                        android:paddingRight="50dp">
+
+                        <FrameLayout
+                            android:id="@+id/volumeLayout"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal">
+
+                            <include
+                                android:id="@+id/volume1Button"
+                                layout="@layout/view_sound_size"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_gravity="left" />
+
+                            <include
+                                android:id="@+id/volume2Button"
+                                layout="@layout/view_sound_size"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_gravity="center" />
+
+                            <include
+                                android:id="@+id/volume3Button"
+                                layout="@layout/view_sound_size"
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:layout_gravity="right" />
+                        </FrameLayout>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center"
+                            android:layout_marginTop="5dp"
+                            android:text="강도"
+                            android:textColor="@color/white"
+                            android:textSize="12dp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
                         android:layout_weight="2"
                         android:gravity="center"
                         android:orientation="vertical">
@@ -229,7 +276,7 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
-                        android:layout_weight="1"
+                        android:layout_weight="2"
                         android:gravity="center|bottom">
 
                         <Button

@@ -51,7 +51,7 @@ public class MethodOfExecutionFragment extends DefaultFragment implements View.O
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        mBinding = DataBindingUtil.inflate(inflater,R.layout.fragment_method_of_execution, container, false);
+        mBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_method_of_execution, container, false);
         return mBinding.getRoot();
     }
 
@@ -74,20 +74,20 @@ public class MethodOfExecutionFragment extends DefaultFragment implements View.O
     @Override
     public void onClick(View v) {
         super.onClick(v);
-        switch (v.getId()){
+        switch (v.getId()) {
 
             case R.id.auto_button:
                 //자동
                 ArrayList<AudioSetModel> audioSetModelList = new ArrayList<>();
-                audioSetModelList.add(new AudioSetModel(0, 4*10, Constants.MINUTE * 5, false));
-                audioSetModelList.add(new AudioSetModel(0, 5*10, Constants.MINUTE * 10, false));
-                audioSetModelList.add(new AudioSetModel(0, 4*10, Constants.MINUTE * 10, false));
-                ((MainActivity)getActivity()).setFragment(InduceSleepFragment.newInstance(audioSetModelList,""));
+                audioSetModelList.add(new AudioSetModel(0, 4 * Constants.SETTING_HZ_UP, Constants.MINUTE * 5, false));
+                audioSetModelList.add(new AudioSetModel(0, 5 * Constants.SETTING_HZ_UP, Constants.MINUTE * 10, false));
+                audioSetModelList.add(new AudioSetModel(0, 4 * Constants.SETTING_HZ_UP, Constants.MINUTE * 10, false));
+                ((MainActivity) getActivity()).setFragment(InduceSleepFragment.newInstance(audioSetModelList, ""));
                 break;
 
             case R.id.not_auto_button:
                 //수동
-                ((MainActivity)getActivity()).setFragment(NotAutoSleepFragment.newInstance("",""));
+                ((MainActivity) getActivity()).setFragment(NotAutoSleepFragment.newInstance("", ""));
                 break;
         }
     }

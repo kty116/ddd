@@ -5,8 +5,10 @@ import androidx.databinding.DataBindingUtil;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -46,14 +48,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        mBinding = DataBindingUtil.setContentView(this,R.layout.activity_main);
+        mBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
 
-        fragment = MainFragment.newInstance("","");
+        fragment = MainFragment.newInstance("", "");
         getSupportFragmentManager().beginTransaction().replace(R.id.content_layout, fragment).commit();
 //        setFragment(fragment);
+
+
     }
 
-    public void setFragment(Fragment fragment){
+    public void setFragment(Fragment fragment) {
         getSupportFragmentManager().beginTransaction().addToBackStack(fragment.getClass().getSimpleName()).add(R.id.content_layout, fragment).commit();
     }
 
@@ -81,23 +85,20 @@ public class MainActivity extends AppCompatActivity {
             FragmentRemoveEvent fragmentRemoveEvent = (FragmentRemoveEvent) event;
             Fragment fragment = fragmentRemoveEvent.getFragment();
 
-
-
-            Log.d(TAG, "onMessageEvent: ddddddd");
             List<Fragment> fragments = getSupportFragmentManager().getFragments();
-            if (fragments.size() > 0){
-                getSupportFragmentManager().popBackStackImmediate(MainFragment.class.getSimpleName(), FragmentManager.POP_BACK_STACK_INCLUSIVE);
-                if (fragment instanceof MainFragment){
+            if (fragments.size() > 0) {
+                getSupportFragmentManager().popBackStackImmediate(null, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                if (fragment instanceof MainFragment) {
                     MainFragment mainFragment = (MainFragment) fragment;
                     getSupportFragmentManager().beginTransaction().replace(R.id.content_layout, mainFragment).commit();
-                }else if (fragment instanceof NotAutoSleepFragment){
+                } else if (fragment instanceof NotAutoSleepFragment) {
                     NotAutoSleepFragment2 notAutoSleepFragment2 = (NotAutoSleepFragment2) fragment;
                     setFragment(notAutoSleepFragment2);
-                    getSupportFragmentManager().beginTransaction().replace(R.id.content_layout, MainFragment.newInstance("","")).commit();
+                    getSupportFragmentManager().beginTransaction().replace(R.id.content_layout, MainFragment.newInstance("", "")).commit();
                 }
                 getSupportFragmentManager().beginTransaction().replace(R.id.content_layout, fragment).commit();
             }
-            Log.d(TAG, "onMessageEvent: "+fragments.size());
+            Log.d(TAG, "onMessageEvent: " + fragments.size());
 
         }
     }
@@ -108,9 +109,9 @@ public class MainActivity extends AppCompatActivity {
         long intervalTime = tempTime - backPressedTime;
 
         List<Fragment> fragments = getSupportFragmentManager().getFragments();
-        Log.d(TAG, "onBackPressed: "+fragments.size());
-        if (fragments.size() > 1){
-           getSupportFragmentManager().popBackStack();
+        Log.d(TAG, "onBackPressed: " + fragments.size());
+        if (fragments.size() > 1) {
+            getSupportFragmentManager().popBackStack();
         } else if (0 <= intervalTime && FINISH_INTERVAL_TIME >= intervalTime) {
             super.onBackPressed();
         } else {

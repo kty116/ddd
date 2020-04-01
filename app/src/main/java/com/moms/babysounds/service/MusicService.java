@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.ParcelUuid;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
@@ -105,6 +106,8 @@ public class MusicService extends Service {
 
                         createNoti("수면유도");
 
+                        setVolume();
+                        setPlayMusicAlarm(false, 0);
                         Bundle bundle = intent.getExtras();
                         mAudioSetModelList = (ArrayList<AudioSetModel>) bundle.getSerializable(Constants.AUDIO_LIST);
                         Log.d(TAG, "onStartCommand: " + mAudioSetModelList.size());
@@ -124,12 +127,13 @@ public class MusicService extends Service {
 
                     case Constants.DEEP_SLEEP_ACTION: //서비스 시작
                         createNoti("깊은수면");
+                        setVolume();
                         setPlayMusicAlarm(false, 0);
 
                         mAudioSetModelList = new ArrayList<>();
-                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 2 *10, Constants.MINUTE * 10, false));
-                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 3 *10, Constants.MINUTE * 10, false));
-                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 4 *10, Constants.MINUTE * 10, false));
+                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 2 * Constants.SETTING_HZ_UP, Constants.MINUTE * 10, false));
+                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 3 * Constants.SETTING_HZ_UP, Constants.MINUTE * 10, false));
+                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 4 * Constants.SETTING_HZ_UP, Constants.MINUTE * 10, false));
                         if (audio != null) {
                             setAudio(mAudioSetModelList, 0);
                         }
@@ -138,12 +142,13 @@ public class MusicService extends Service {
 
                     case Constants.REST_ACTION: //서비스 시작
                         createNoti("휴식");
+                        setVolume();
                         setPlayMusicAlarm(false, 0);
 
                         mAudioSetModelList = new ArrayList<>();
-                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 8 *10, Constants.MINUTE * 10, false));
-                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 10 *10, Constants.MINUTE * 10, false));
-                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 12 *10, Constants.MINUTE * 10, false));
+                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 8 * Constants.SETTING_HZ_UP, Constants.MINUTE * 10, false));
+                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 10 * Constants.SETTING_HZ_UP, Constants.MINUTE * 10, false));
+                        mAudioSetModelList.add(new AudioSetModel(Audio.SINE, 12 * Constants.SETTING_HZ_UP, Constants.MINUTE * 10, false));
                         if (audio != null) {
 
                             setAudio(mAudioSetModelList, 0);
@@ -163,13 +168,33 @@ public class MusicService extends Service {
         return START_NOT_STICKY;
     }
 
+    public void setVolume() {
+        AudioManager audio = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        int currentVolume = audio.getStreamVolume(AudioManager.STREAM_MUSIC);
+        int streamMaxVolume = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+
+        int volume = mTinyDB.getInt(Constants.SETTING_VOLUME);
+        switch (volume) {
+            case 1:
+                audio.setStreamVolume(AudioManager.STREAM_MUSIC, Math.round(streamMaxVolume / 4), AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+                break;
+            case 2:
+                audio.setStreamVolume(AudioManager.STREAM_MUSIC, Math.round(streamMaxVolume / 2), AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+                break;
+            case 3:
+                audio.setStreamVolume(AudioManager.STREAM_MUSIC, Math.round(streamMaxVolume), AudioManager.FLAG_REMOVE_SOUND_AND_VIBRATE);
+                break;
+        }
+
+    }
+
     public void setAudio(ArrayList<AudioSetModel> audioSetModelList, int index) {
         Log.d(TAG, "setAudio: " + index);
         AudioSetModel audioSetModel = audioSetModelList.get(index);
         audio.waveform = audioSetModel.getAudioWaveForm();
         audio.frequency = audioSetModel.getHz();
 
-        Log.d(TAG, "setAudio: "+audioSetModel.getHz());
+        Log.d(TAG, "setAudio: " + audioSetModel.getHz());
 
 //        if (audio != null)
 //            audio.waveform = Audio.SINE;
@@ -210,7 +235,7 @@ public class MusicService extends Service {
 
         } else if (event instanceof PlayMusicEvent) {
             for (int i = 0; i < mAudioSetModelList.size(); i++) {
-               
+
                 if (mAudioSetModelList.get(i).isAlreadyPlayed()) {
                     if (i == mAudioSetModelList.size() - 1) {  //마지막 이면 끄기
 
@@ -227,13 +252,12 @@ public class MusicService extends Service {
     }
 
     // Audio
-    protected class Audio implements Runnable
-    {
+    protected class Audio implements Runnable {
         protected static final int SINE = 0;
         protected static final int SQUARE = 1;
         protected static final int SAWTOOTH = 2;
 
-        protected int waveform ;
+        protected int waveform;
         protected boolean mute;
 
         protected double frequency;
@@ -243,22 +267,19 @@ public class MusicService extends Service {
 
         private AudioTrack audioTrack;
 
-        protected Audio()
-        {
+        protected Audio() {
             frequency = 5.0;
             level = 1.0;
         }
 
         // Start
-        protected void start()
-        {
+        protected void start() {
             thread = new Thread(this, "Audio");
             thread.start();
         }
 
         // Stop
-        protected void stop()
-        {
+        protected void stop() {
             Thread t = thread;
             thread.interrupt();
             thread = null;
@@ -268,14 +289,12 @@ public class MusicService extends Service {
 //                Thread.yield();
         }
 
-        public void run()
-        {
+        public void run() {
             processAudio();
         }
 
         // Process audio
-        protected void processAudio()
-        {
+        protected void processAudio() {
             short buffer[];
 
             int rate =
@@ -288,10 +307,8 @@ public class MusicService extends Service {
             int sizes[] = {1024, 2048, 4096, 8192, 16384, 32768};
             int size = 0;
 
-            for (int s : sizes)
-            {
-                if (s > minSize)
-                {
+            for (int s : sizes) {
+                if (s > minSize) {
                     size = s;
                     break;
                 }
@@ -311,8 +328,7 @@ public class MusicService extends Service {
             // Check state
             int state = audioTrack.getState();
 
-            if (state != AudioTrack.STATE_INITIALIZED)
-            {
+            if (state != AudioTrack.STATE_INITIALIZED) {
                 audioTrack.release();
                 return;
             }
@@ -327,8 +343,7 @@ public class MusicService extends Service {
             double l = 0.0;
             double q = 0.0;
 
-            while (thread != null)
-            {
+            while (thread != null) {
                 try {
                     // Fill the current buffer
                     for (int i = 0; i < buffer.length; i++) {
@@ -352,7 +367,7 @@ public class MusicService extends Service {
                     }
 
                     audioTrack.write(buffer, 0, buffer.length);
-                }catch (Exception e){
+                } catch (Exception e) {
                 }
             }
 
@@ -407,7 +422,7 @@ public class MusicService extends Service {
         mStateNoti = new NotificationCompat.Builder(this, channelId)
                 .setContentTitle(getString(R.string.app_name))
                 .setSmallIcon(R.mipmap.ic_launcher)
-                .addAction(R.drawable.ic_clear_black,"종료",stopScanPendingIntent());
+                .addAction(R.drawable.ic_clear_black, "종료", stopScanPendingIntent());
 
         if (!text.isEmpty()) {
             mStateNoti.setContentText(text);
