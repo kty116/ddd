@@ -57,6 +57,7 @@
     </LinearLayout>
 
     <LinearLayout
+        android:paddingTop="50dp"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
@@ -71,14 +72,14 @@
             android:orientation="vertical">
 
             <Button
-                android:visibility="gone"
+                android:visibility="visible"
                 android:id="@+id/after5Button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/trance"
-                android:text="5분 후 다시 알림"
+                android:text="5분 후 다시 알림/울림"
                 android:textColor="@color/white"
-                android:textSize="18dp"
+                android:textSize="21dp"
               />
         </LinearLayout>
 
@@ -96,7 +97,7 @@
                 android:background="@color/trance"
                 android:text="해제"
                 android:textColor="@color/white"
-                android:textSize="18dp"
+                android:textSize="21dp"
                 />
         </LinearLayout>
     </LinearLayout>

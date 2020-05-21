@@ -14,11 +14,10 @@
             layout="@layout/layout_default" />
 
         <TextView
-            android:textStyle="bold"
             android:textColor="@color/white"
-            android:textSize="15dp"
+            android:textSize="18dp"
             android:layout_gravity="center"
-            android:text="숙면중..."
+            android:text="@string/sleeping"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
 

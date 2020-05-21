@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Smart Wave</string>
+    <string name="finish">종료</string>
+    <string name="press_the_back_button_again_to_exit">\'뒤로\' 버튼을 한번 더 누르시면 종료됩니다.</string>
+    <string name="sleeping">숙면중...</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
